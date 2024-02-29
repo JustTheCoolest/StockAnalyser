@@ -1,0 +1,3 @@
+"With python-oracledb every exception object has exactly one argument in the args tuple. This argument is an oracledb._Error object which has the following six read-only attributes."
+https://python-oracledb.readthedocs.io/en/latest/api_manual/module.html#oracledb._Error.code
+
