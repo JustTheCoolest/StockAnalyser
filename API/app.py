@@ -1,7 +1,9 @@
 from flask import Flask
+from flask_restful import Resource, Api
 import oracledb
 
 app = Flask(__name__)
+api = Api(app)
 
 connection = oracledb.connect(user='system', password=open('API/password.txt').read(), dsn='localhost:1521/xe')
 cursor = connection.cursor()
@@ -28,6 +30,16 @@ def table_setup():
             pass
         else:
             raise
+
+class Analyser(Resource):
+
+    def get(self, stock_name):
+        return {'hello': 'world'}
+    
+    def post(self, stock_name):
+        return {'hello': 'world'}
+    
+api.add_resource(Analyser, '/<string:stock_name>')
 
 if __name__ == "__main__":
     table_setup()
