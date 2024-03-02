@@ -1,6 +1,7 @@
 from flask import Flask
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 import oracledb
+import datetime
 
 app = Flask(__name__)
 api = Api(app)
@@ -32,6 +33,14 @@ def table_setup():
             raise
 
 class Analyser(Resource):
+
+    parser = reqparse.RequestParser()
+    parser.add_argument('price_at_buy', type=float)
+    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d').date())
+    parser.add_argument('fee_ratio_at_buy', type=float)
+    parser.add_argument('fee_ratio_at_sell', type=float)
+    parser.add_argument('capital_gains_tax_ratio', type=float)
+    parser.add_argument('target_profit_ratio', type=float)
 
     def get(self, stock_name):
         return {'hello': 'world'}
