@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 import oracledb
 import datetime
+import dateutil.relativedelta
 
 app = Flask(__name__)
 api = Api(app)
@@ -32,11 +33,21 @@ def table_setup():
         else:
             raise
 
+def years_and_remaining_days_since(input_date, today = datetime.datetime.now().date()):
+    """ Untested for negative dates """
+    time_difference_from_now = dateutil.relativedelta.relativedelta(today, input_date)
+    years_difference = time_difference_from_now.years
+    input_date_in_latest_year = input_date + dateutil.relativedelta.relativedelta(years=years_difference)
+    days_remainder_difference = (today - input_date_in_latest_year).days
+    input_date_in_its_next_year = input_date_in_latest_year.replace(year = input_date_in_latest_year.year + 1)
+    total_days_in_latest_year = (input_date_in_its_next_year - input_date_in_latest_year).days
+    return (years_difference, days_remainder_difference, total_days_in_latest_year)
+
 class Analyser(Resource):
 
     parser = reqparse.RequestParser()
     parser.add_argument('price_at_buy', type=float)
-    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d').date())
+    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d'))
     parser.add_argument('fee_ratio_at_buy', type=float)
     parser.add_argument('fee_ratio_at_sell', type=float)
     parser.add_argument('capital_gains_tax_ratio', type=float)
