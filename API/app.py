@@ -44,6 +44,10 @@ def years_and_remaining_days_since(input_date, today):
     total_days_in_latest_year = (input_date_in_its_next_year - input_date_in_latest_year).days
     return (years_difference, days_remainder_difference, total_days_in_latest_year)
 
+def fractional_years_since(input_date, today):
+    years_difference, days_remainder_difference, total_days_in_latest_year = years_and_remaining_days_since(input_date, today)
+    return years_difference + days_remainder_difference / total_days_in_latest_year
+
 def compound_interest_ratio(rate, time):
     ratio = (1 + rate) ** time
     return ratio
@@ -64,13 +68,14 @@ class Analyser(Resource):
         Ratios: Part to be added. For example, target_annual_profit_interest_ratio = 0.1 for 10% interest.
         Target annual profit is compounded continually.
         """
-            
         def intermediate_aggregator(target_interest_ratio):
             return cost_price / (1 - fee_ratio_at_sell) * ( (target_interest_ratio - 1) / (1 - capital_gains_tax_ratio) + 1)
+        if type(purchase_date) is datetime.datetime:
+            purchase_date = purchase_date.date()
         cost_price = price_at_buy * (1 + fee_ratio_at_buy)
-        years_difference, days_remainder_difference, total_days_in_latest_year = years_and_remaining_days_since(purchase_date, today)
-        target_interest_ratio_with_strict_time = compound_interest_ratio(target_annual_profit_interest_ratio, years_difference + days_remainder_difference / total_days_in_latest_year)
-        target_interest_ratio_with_yearly_time = compound_interest_ratio(target_annual_profit_interest_ratio, math.ceil(years_difference))
+        fractional_years_difference = fractional_years_since(purchase_date, today)
+        target_interest_ratio_with_strict_time = compound_interest_ratio(target_annual_profit_interest_ratio, fractional_years_difference)
+        target_interest_ratio_with_yearly_time = compound_interest_ratio(target_annual_profit_interest_ratio, math.ceil(fractional_years_difference))
         return intermediate_aggregator(target_interest_ratio_with_strict_time), intermediate_aggregator(target_interest_ratio_with_yearly_time)
 
     def get(self, stock_name = None):

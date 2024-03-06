@@ -40,7 +40,7 @@ class TestTargetSalePrices(unittest.TestCase):
                 cost_price = price_at_buy * (1 + fee_ratio_at_buy)
                 years_difference, days_remainder_difference, total_days_in_latest_year = years_and_remaining_days_since(purchase_date, today)
                 target_interest_ratio_with_strict_time = compound_interest_ratio(target_annual_profit_interest_ratio, years_difference + days_remainder_difference / total_days_in_latest_year)
-                target_interest_ratio_with_yearly_time = compound_interest_ratio(target_annual_profit_interest_ratio, math.ceil(years_difference))
+                target_interest_ratio_with_yearly_time = compound_interest_ratio(target_annual_profit_interest_ratio, math.ceil(years_difference + days_remainder_difference / total_days_in_latest_year))
                 target_sale_price_with_strict_time, target_sale_price_with_yearly_time = Analyser.target_sale_prices(price_at_buy, purchase_date, fee_ratio_at_buy, fee_ratio_at_sell, capital_gains_tax_ratio, target_annual_profit_interest_ratio, today)
                 def sale_price_to_profit_ratio(sale_price):
                     gains = sale_price * (1 - fee_ratio_at_sell) - cost_price
