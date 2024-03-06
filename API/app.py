@@ -43,6 +43,10 @@ def years_and_remaining_days_since(input_date, today = datetime.datetime.now().d
     total_days_in_latest_year = (input_date_in_its_next_year - input_date_in_latest_year).days
     return (years_difference, days_remainder_difference, total_days_in_latest_year)
 
+def compound_interest_ratio(rate, time):
+    ratio = (1 + rate) ** time
+    return ratio
+
 class Analyser(Resource):
 
     parser = reqparse.RequestParser()
