@@ -3,6 +3,7 @@ from flask_restful import Resource, Api, reqparse
 import oracledb
 import datetime
 import dateutil.relativedelta
+import math
 
 app = Flask(__name__)
 api = Api(app)
@@ -33,7 +34,7 @@ def table_setup():
         else:
             raise
 
-def years_and_remaining_days_since(input_date, today = datetime.datetime.now().date()):
+def years_and_remaining_days_since(input_date, today):
     """ Untested for negative dates """
     time_difference_from_now = dateutil.relativedelta.relativedelta(today, input_date)
     years_difference = time_difference_from_now.years
@@ -58,10 +59,19 @@ class Analyser(Resource):
     parser.add_argument('target_profit_ratio', type=float)
 
     @staticmethod
-    def target_profits(price_at_buy, fee_ratio_at_buy, fee_ratio_at_sell, capital_gains_tax_ratio, target_profit_ratio):
-        def _intermediate_aggregator():
-            pass
-        pass
+    def target_sale_prices(price_at_buy, purchase_date, fee_ratio_at_buy, fee_ratio_at_sell, capital_gains_tax_ratio, target_annual_profit_interest_ratio, today = datetime.datetime.now().date()):
+        """ 
+        Ratios: Part to be added. For example, target_annual_profit_interest_ratio = 0.1 for 10% interest.
+        Target annual profit is compounded continually.
+        """
+            
+        def intermediate_aggregator(target_interest_ratio):
+            return cost_price / (1 - fee_ratio_at_sell) * ( (target_interest_ratio - 1) / (1 - capital_gains_tax_ratio) + 1)
+        cost_price = price_at_buy * (1 + fee_ratio_at_buy)
+        years_difference, days_remainder_difference, total_days_in_latest_year = years_and_remaining_days_since(purchase_date, today)
+        target_interest_ratio_with_strict_time = compound_interest_ratio(target_annual_profit_interest_ratio, years_difference + days_remainder_difference / total_days_in_latest_year)
+        target_interest_ratio_with_yearly_time = compound_interest_ratio(target_annual_profit_interest_ratio, math.ceil(years_difference))
+        return intermediate_aggregator(target_interest_ratio_with_strict_time), intermediate_aggregator(target_interest_ratio_with_yearly_time)
 
     def get(self, stock_name = None):
         if stock_name == None:
