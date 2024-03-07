@@ -56,7 +56,7 @@ class Analyser(Resource):
 
     parser = reqparse.RequestParser()
     parser.add_argument('price_at_buy', type=float)
-    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d'))
+    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d').date())
     parser.add_argument('fee_ratio_at_buy', type=float)
     parser.add_argument('fee_ratio_at_sell', type=float)
     parser.add_argument('capital_gains_tax_ratio', type=float)
@@ -83,11 +83,11 @@ class Analyser(Resource):
             cursor.execute('SELECT name FROM Stocks')
             return {'Available Stocks': cursor.fetchall()}
         cursor.execute(f"SELECT * FROM Stocks WHERE name = '{stock_name}'")
-        stock_data = cursor.fetchone()
+        stock_data = cursor.fetchall()
         if not stock_data:
             return {'message': 'Stock not found'}, 404
         # price_to_sell_with_strict_target, price_to_sell_with_year_target = 
-        return Analyser.target_profits(None, None, None, None, None)
+        return [Analyser.target_sale_prices(*stock_data_row[1:]) for stock_data_row in stock_data]
 
 
     def post(self, stock_name):
