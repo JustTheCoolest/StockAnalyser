@@ -48,7 +48,20 @@ class TestTargetSalePrices(unittest.TestCase):
                     return profit / cost_price + 1
                 self.assertAlmostEqual(sale_price_to_profit_ratio(target_sale_price_with_strict_time), target_interest_ratio_with_strict_time, places=10)
                 self.assertAlmostEqual(sale_price_to_profit_ratio(target_sale_price_with_yearly_time), target_interest_ratio_with_yearly_time, places=10)
-                
+
+    def test_target_sale_prices_hard_coded(self):
+        cost_price = 1000 * (1 + 0.03)
+        strict_ratio = (1 + 0.2) ** (1 + 28/366)
+        profit = cost_price * (strict_ratio - 1)
+        gains = profit / (1 - 0.1)
+        sale_price = (cost_price + gains)/(1 - 0.025)
+        self.assertAlmostEqual(sale_price, 1310.9522970764065, places=10)
+        year_wise_ratio = (1 + 0.2) ** 2
+        profit = cost_price * (year_wise_ratio - 1)
+        gains = profit / (1 - 0.1)
+        sale_price = (cost_price + gains)/(1 - 0.025)
+        self.assertAlmostEqual(sale_price, 1572.8774928774928, places=10)
+             
 
 if __name__ == '__main__':
     unittest.main()
