@@ -92,9 +92,20 @@ class Analyser(Resource):
 
     def post(self, stock_name):
         arguments = Analyser.parser.parse_args()
-        print(arguments)
-        arguments['purchase_date'] = arguments['purchase_date'].isoformat()
-        return arguments
+        cursor.execute(f"""
+            INSERT INTO Stocks VALUES (
+                '{stock_name}', 
+                {arguments['price_at_buy']}, 
+                TO_DATE('{arguments['purchase_date']}', 'yyyy-mm-dd'), 
+                {arguments['fee_ratio_at_buy']}, 
+                {arguments['fee_ratio_at_sell']}, 
+                {arguments['capital_gains_tax_ratio']}, 
+                {arguments['target_profit_ratio']}
+            )
+        """)
+        connection.commit()
+        return {'message': 'Stock added'}, 201
+
 
 api.add_resource(Analyser, '/', '/<string:stock_name>')
 
