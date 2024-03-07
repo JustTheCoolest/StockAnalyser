@@ -55,12 +55,12 @@ def compound_interest_ratio(rate, time):
 class Analyser(Resource):
 
     parser = reqparse.RequestParser()
-    parser.add_argument('price_at_buy', type=float)
-    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d').date())
-    parser.add_argument('fee_ratio_at_buy', type=float)
-    parser.add_argument('fee_ratio_at_sell', type=float)
-    parser.add_argument('capital_gains_tax_ratio', type=float)
-    parser.add_argument('target_profit_ratio', type=float)
+    parser.add_argument('price_at_buy', type=float, required=True)
+    parser.add_argument('purchase_date', type=lambda string: datetime.datetime.strptime(string, '%Y-%m-%d').date(), required=True)
+    parser.add_argument('fee_ratio_at_buy', type=float, required=True)
+    parser.add_argument('fee_ratio_at_sell', type=float, required=True)
+    parser.add_argument('capital_gains_tax_ratio', type=float, required=True)
+    parser.add_argument('target_profit_ratio', type=float, required=True)
 
     @staticmethod
     def target_sale_prices(price_at_buy, purchase_date, fee_ratio_at_buy, fee_ratio_at_sell, capital_gains_tax_ratio, target_annual_profit_interest_ratio, today = datetime.datetime.now().date()):
@@ -91,7 +91,10 @@ class Analyser(Resource):
 
 
     def post(self, stock_name):
-        return {'hello': 'world'}
+        arguments = Analyser.parser.parse_args()
+        print(arguments)
+        arguments['purchase_date'] = arguments['purchase_date'].isoformat()
+        return arguments
 
 api.add_resource(Analyser, '/', '/<string:stock_name>')
 
